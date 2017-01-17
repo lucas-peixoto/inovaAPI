@@ -24,7 +24,10 @@ class AlunoEntity
         $this->nome = $data['nome'];
         $this->turno = $data['turno'];
         $this->email = $data['email'];
-        $this->curso = $data['curso'];
+
+        if(isset($data['curso'])) {
+            $this->curso = $data['curso'];
+        }
     }
 
     public function getId() {

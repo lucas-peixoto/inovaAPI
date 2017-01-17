@@ -12,8 +12,12 @@ class CursoEntity
      * @param array $data The data to use to create
      */
     public function __construct(array $data) {
-        $this->id = $data['id'];
-        $this->name = $data['nome'];
+      // no id if we're creating
+      if(isset($data['id'])) {
+          $this->id = $data['id'];
+      }
+
+      $this->name = $data['nome'];
     }
 
     public function getId() {
