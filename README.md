@@ -1,8 +1,8 @@
 inovaAPI
 
--clone
--composer install
+-clone  
+-composer install  
 -db/inova.sql install
--php -S localhost:8080 -t public
--got to localhost:8080/test
--Ok, I guess.
+-php -S localhost:8080 -t public  
+-got to localhost:8080/test  
+-Ok, I guess.  
