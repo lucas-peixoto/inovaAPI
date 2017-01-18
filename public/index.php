@@ -80,7 +80,7 @@ $app->get('/test', function (Request $request, Response $response) {
     $this->logger->addInfo("Saving aluno " . $aluno->getNome());
     $alunoMapper->save($aluno);
 
-    $response->getBody()->write("Ok, I expect.");
+    $response->getBody()->write("Ok, I guess.");
 
     return $response;
 });
