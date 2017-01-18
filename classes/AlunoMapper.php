@@ -4,7 +4,7 @@ class AlunoMapper extends Mapper
 {
 
     public function getAlunos() {
-        $sql = "SELECT a.id, a.nome, a.turno, a.email, c.nome
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome, a.turno
         from alunos a
         join cursos c on (c.id = a.curso_id)";
 
@@ -24,7 +24,7 @@ class AlunoMapper extends Mapper
     * @return TicketEntity  The ticket
     */
     public function getAlunoById($aluno_id) {
-        $sql = "SELECT a.id, a.nome, a.turno, a.email, c.nome
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome, a.turno
         from alunos a join cursos c on (c.id = a.curso_id)
         where a.id = :aluno_id";
 
@@ -38,16 +38,19 @@ class AlunoMapper extends Mapper
 
     public function save(AlunoEntity $aluno) {
         $sql = "INSERT into alunos
-            (nome, turno, email, curso_id) values
-            (:nome, :turno, :email,
-            (select id from cursos where nome = :curso))";
+            (nome, cpf, email, telefone, curso_id, turno, endereco_id) values
+            (:nome, :cpf, :email, :telefone,
+            (select id from cursos where nome = :curso), :turno, :endereco)";
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
-            "nome" => $ticket->getNome(),
-            "turno" => $ticket->getTurno(),
-            "email" => $ticket->getEmail(),
-            "curso" => $ticket->getCurso()
+            "nome" => $aluno->getNome(),
+            "cpf" => $aluno->getCpf(),
+            "email" => $aluno->getEmail(),
+            "telefone" => $aluno->getTelefone(),
+            "curso" => $aluno->getCurso(),
+            "turno" => $aluno->getTurno(),
+            "endereco" => $aluno->getEndereco()
         ]);
 
         if(!$result) {

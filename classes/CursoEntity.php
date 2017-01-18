@@ -17,7 +17,7 @@ class CursoEntity
           $this->id = $data['id'];
       }
 
-      $this->name = $data['nome'];
+      $this->nome = $data['nome'];
     }
 
     public function getId() {

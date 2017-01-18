@@ -5,9 +5,12 @@ class AlunoEntity
 
     protected $id;
     protected $nome;
-    protected $turno;
+    protected $cpf;
     protected $email;
+    protected $telefone;
     protected $curso;
+    protected $turno;
+    protected $endereco;
 
     /**
      * Accept an array of data matching properties of this class
@@ -22,11 +25,18 @@ class AlunoEntity
         }
 
         $this->nome = $data['nome'];
-        $this->turno = $data['turno'];
-        $this->email = $data['email'];
 
-        if(isset($data['curso'])) {
-            $this->curso = $data['curso'];
+        if(isset($data['cpf'])) {
+            $this->cpf = $data['cpf'];
+        }
+
+        $this->email = $data['email'];
+        $this->telefone = $data['telefone'];
+        $this->curso = $data['curso'];
+        $this->turno = $data['turno'];
+
+        if(isset($data['endereco_id'])) {
+            $this->endereco = $data['endereco_id'];
         }
     }
 
@@ -38,16 +48,28 @@ class AlunoEntity
         return $this->nome;
     }
 
-    public function getTurno() {
-        return $this->turno;
+    public function getCpf() {
+        return $this->cpf;
     }
 
     public function getEmail() {
         return $this->email;
     }
 
+    public function getTelefone() {
+        return $this->telefone;
+    }
+
     public function getCurso() {
         return $this->curso;
+    }
+
+    public function getTurno() {
+        return $this->turno;
+    }
+
+    public function getEndereco() {
+        return $this->endereco;
     }
 
 }
