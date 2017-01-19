@@ -8,7 +8,7 @@ spl_autoload_register(function ($classname) {
 });
 
 $config['displayErrorDetails'] = true;
-$config['addContentLengthHeader'] = false;
+// $config['addContentLengthHeader'] = false;
 
 $config['db']['host']   = "localhost";
 $config['db']['user']   = "root";
@@ -46,18 +46,18 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
 
 $app->get('/test', function (Request $request, Response $response) {
     $aluno_data = [];
-    $aluno_data['nome'] = "Lucas Peixoto";
-    $aluno_data['cpf'] = "039.188.293-75";
-    $aluno_data['email'] = "lpeixoto2000@hotmail.com";
-    $aluno_data['telefone'] = "(88) 981293317";
-    $aluno_data['curso'] = "Engenharia Espacial";
-    $aluno_data['turno'] = "Todos";
+    $aluno_data['nome'] = "Xicara";
+    $aluno_data['cpf'] = "756.376.109-01";
+    $aluno_data['email'] = "xica2k17@yahoo.com.br";
+    $aluno_data['telefone'] = "(88) 384635298";
+    $aluno_data['curso'] = "Engenharia Aero-Espacial";
+    $aluno_data['turno'] = "Manhã";
     $endereco_data = [];
-    $endereco_data['rua'] = "ruaa";
-    $endereco_data['numero'] = "nuksuc";
-    $endereco_data['bairro'] = "barrasd";
-    $endereco_data['cidade'] = "city";
-    $endereco_data['estado'] = "ES";
+    $endereco_data['rua'] = "Beco Diagonal";
+    $endereco_data['numero'] = "403";
+    $endereco_data['bairro'] = "Biboca";
+    $endereco_data['cidade'] = "Diagonal City";
+    $endereco_data['estado'] = "HG";
     $endereco_data['cep'] = "63180-000";
 
     $cursoMapper = new CursoMapper($this->db);
@@ -83,6 +83,23 @@ $app->get('/test', function (Request $request, Response $response) {
     $response->getBody()->write("Ok, I guess.");
 
     return $response;
+});
+
+$app->group('/get', function () use ($app) {
+    $app->get('/all', function ($request, $response) {
+        $alunoMapper = new AlunoMapper($this->db);
+        $alunos = $alunoMapper->getAlunos('ARRAY');
+
+        return $this->view->render($response, 'json.php', ["data" => $alunos]);
+    });
+    $app->get('/{id}', function ($request, $response, $args) {
+        $aluno_id = (int) $args['id'];
+        $this->logger->addInfo("Geting aluno " . $aluno_id);
+        $alunoMapper = new AlunoMapper($this->db);
+        $aluno = $alunoMapper->getAlunoById($aluno_id, 'ARRAY');
+
+        return $this->view->render($response, 'json.php', ["data" => $aluno]);
+    });
 });
 
 $app->post('/add', function (Request $request, Response $response) {

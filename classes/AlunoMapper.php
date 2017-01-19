@@ -3,17 +3,24 @@
 class AlunoMapper extends Mapper
 {
 
-    public function getAlunos() {
-        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome, a.turno
+    public function getAlunos($return_type = 'OBJECT') {
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, a.turno
         from alunos a
         join cursos c on (c.id = a.curso_id)";
 
         $stmt = $this->db->query($sql);
         $results = [];
 
-        while($row = $stmt->fetch()) {
-            $results[] = new AlunoEntity($row);
+        if ($return_type == 'OBJECT') {
+            while($row = $stmt->fetch()) {
+                $results[] = new AlunoEntity($row);
+            }
+        } else if ($return_type == 'ARRAY') {
+            while($row = $stmt->fetch()) {
+                $results[] = $row;
+            }
         }
+
         return $results;
     }
 
@@ -23,8 +30,8 @@ class AlunoMapper extends Mapper
     * @param int $ticket_id The ID of the ticket
     * @return TicketEntity  The ticket
     */
-    public function getAlunoById($aluno_id) {
-        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome, a.turno
+    public function getAlunoById($aluno_id, $return_type = 'OBJECT') {
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, a.turno
         from alunos a join cursos c on (c.id = a.curso_id)
         where a.id = :aluno_id";
 
@@ -32,7 +39,11 @@ class AlunoMapper extends Mapper
         $result = $stmt->execute(["aluno_id" => $aluno_id]);
 
         if($result) {
-            return new AlunoEntity($stmt->fetch());
+            if ($return_type == 'OBJECT') {
+                return new AlunoEntity($stmt->fetch());
+            } else if ($return_type == 'ARRAY') {
+                return $stmt->fetch();
+            }
         }
     }
 
