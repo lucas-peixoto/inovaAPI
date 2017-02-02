@@ -4,8 +4,8 @@ class UserMapper extends Mapper
 {
 
     public function getUsers($return_type = 'OBJECT') {
-        $sql = "SELECT id, nome, nivel, username, password
-        from users";
+        $sql = "SELECT id, nome, nivel, username
+        from usuarios";
 
         $stmt = $this->db->query($sql);
         $results = [];
@@ -30,8 +30,8 @@ class UserMapper extends Mapper
     * @return TicketEntity  The ticket
     */
     public function getUserById($user_id, $return_type = 'OBJECT') {
-        $sql = "SELECT id, nome, nivel, username, password
-        from users
+        $sql = "SELECT id, nome, nivel, username
+        from usuarios
         where id = :user_id";
 
         $stmt = $this->db->prepare($sql);
@@ -48,11 +48,11 @@ class UserMapper extends Mapper
 
     public function getUserByCredentials($username, $password, $return_type = 'OBJECT') {
         $sql = "SELECT id, nome, nivel, username, password, token
-        from users
+        from usuarios
         where username = :username and password = :password";
 
         $stmt = $this->db->prepare($sql);
-        $result = $stmt->execute(["username" => $username, "password" => $password]);
+        $result = $stmt->execute(["username" => $username, "password" => md5($password)]);
 
         if($result) {
             if ($return_type == 'OBJECT') {
@@ -63,6 +63,21 @@ class UserMapper extends Mapper
         } else {
             return false;
         }
+    }
+
+    public function checkToken($token) {
+        $sql = "SELECT id
+        from usuarios
+        where token = :token";
+
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute(["token" => $token]);
+
+        if($result) {
+            return true;
+        }
+
+        return false;
     }
 
     public function save(UserEntity $user) {
@@ -76,11 +91,11 @@ class UserMapper extends Mapper
             "nivel" => $user->getNivel(),
             "username" => $user->getUsername(),
             "password" => $user->getPassword(),
-            "token" => $user->getCurso()
+            "token" => $this->createToken()
         ]);
 
         if(!$result) {
-            throw new Exception("Os dados não puderam ser salvos - UserMapper:53");
+            throw new Exception("Os dados não puderam ser salvos - UserMapper:87");
         }
     }
 }
