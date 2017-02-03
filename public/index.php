@@ -38,6 +38,18 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
+
+$app->add(function ($req, $res, $next) {
+    $response = $next($req, $res);
+    return $response
+            ->withHeader('Access-Control-Allow-Origin', 'http://10.113.19.235:8100')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+});
+
 $app->get('/hello/{name}', function (Request $request, Response $response) {
     $name = $request->getAttribute('name');
     $response->getBody()->write("Hello, $name");
@@ -46,18 +58,34 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
     return $response;
 });
 
-$app->post('/authenticate', function (Request $request, Response $response) {
-    $this->logger->addInfo("/authenticate");
-    $data = $request->getParsedBody();
-
-    $username = filter_var($data['username'], FILTER_SANITIZE_STRING);
-    $password = filter_var($data['password'], FILTER_SANITIZE_STRING);
-
+$app->get('/tmp', function (Request $request, Response $response) {
     $userMapper = new UserMapper($this->db);
-    $user = $userMapper->getUserByCredentials($username, $password, 'ARRAY');
+    $user = $userMapper->getUserByCredentials('jgerente', '1234');
+
+    var_dump($user);
 
     if ($user) {
-        $resp = array( 'success' => 'true', 'token' => $user->getToken );
+        $resp = array( 'success' => 'true', 'token' => $user->getToken() );
+    } else {
+        $resp = array( 'success' => 'false', 'msg' => 'Credenciais inválidas' );
+    }
+
+    // return $this->view->render($response, 'json.php', ["data" => $resp]);
+});
+
+$app->post('/authenticate', function (Request $request, Response $response) {
+    $data = $request->getParsedBody();
+
+    $username = $data['username'];
+    $password = $data['password'];
+
+    $this->logger->addInfo("/authenticate $username@$password");
+
+    $userMapper = new UserMapper($this->db);
+    $user = $userMapper->getUserByCredentials($username, $password);
+
+    if ($user) {
+        $resp = array( 'success' => 'true', 'token' => $user->getToken() );
     } else {
         $resp = array( 'success' => 'false', 'msg' => 'Credenciais inválidas' );
     }
@@ -66,19 +94,35 @@ $app->post('/authenticate', function (Request $request, Response $response) {
 });
 
 $app->group('/get', function () use ($app) {
-    $app->get('/all', function ($request, $response) {
-        $alunoMapper = new AlunoMapper($this->db);
-        $alunos = $alunoMapper->getAlunos('ARRAY');
+    $app->get('/all/{token}', function ($request, $response) {
+        $token = $request->getAttribute('token');
+        $userMapper = new UserMapper($this->db);
 
-        return $this->view->render($response, 'json.php', ["data" => $alunos]);
+        if ($userMapper->checkToken($token)) {
+            $this->logger->addInfo("Token $token validado");
+            $cursoMapper = new CursoMapper($this->db);
+            $cursos = $cursoMapper->getCursos('ARRAY');
+            return $this->view->render($response, 'json.php', ["data" => $cursos]);
+        } else {
+            $data = array('success' => false, 'msg' => 'token inválido');
+            return $this->view->render($response, 'json.php', ["data" => $data]);
+        }
     });
-    $app->get('/{id}', function ($request, $response, $args) {
-        $aluno_id = (int) $args['id'];
-        $this->logger->addInfo("Geting aluno " . $aluno_id);
-        $alunoMapper = new AlunoMapper($this->db);
-        $aluno = $alunoMapper->getAlunoById($aluno_id, 'ARRAY');
+    $app->get('/{id}/{token}', function ($request, $response, $args) {
+        $curso_id = (int) $args['id'];
+        $token = $request->getAttribute('token');
+        $userMapper = new UserMapper($this->db);
 
-        return $this->view->render($response, 'json.php', ["data" => $aluno]);
+        if ($userMapper->checkToken($token)) {
+            $this->logger->addInfo("Token $token validado");
+            $this->logger->addInfo("Geting curso $curso_id for $token");
+            $cursoMapper = new CursoMapper($this->db);
+            $curso = $cursoMapper->getCursoById($curso_id, 'ARRAY');
+            return $this->view->render($response, 'json.php', ["data" => $curso]);
+        } else {
+            $data = array('success' => false, 'msg' => 'token inválido');
+            return $this->view->render($response, 'json.php', ["data" => $data]);
+        }
     });
 });
 
@@ -126,19 +170,24 @@ $app->post('/add', function (Request $request, Response $response) {
 
 $app->get('/test', function (Request $request, Response $response) {
     $aluno_data = [];
-    $aluno_data['nome'] = "Xicara";
-    $aluno_data['cpf'] = "756.376.109-01";
-    $aluno_data['email'] = "xica2k17@yahoo.com.br";
-    $aluno_data['telefone'] = "(88) 384635298";
+    $aluno_data['nome'] = "Alexandra";
+    $aluno_data['cpf'] = "555.000.109-01";
+    $aluno_data['email'] = "alexandra2k17@yahoo.com.br";
+    $aluno_data['telefone'] = "(88) 111227564";
     $aluno_data['curso'] = "Engenharia Aero-Espacial";
-    $aluno_data['turno'] = "Manhã";
+    $aluno_data['turno'] = "noite";
     $endereco_data = [];
     $endereco_data['rua'] = "Beco Diagonal";
     $endereco_data['numero'] = "403";
-    $endereco_data['bairro'] = "Biboca";
+    $endereco_data['bairro'] = "Centro";
     $endereco_data['cidade'] = "Diagonal City";
     $endereco_data['estado'] = "HG";
     $endereco_data['cep'] = "63180-000";
+    $usuario_data = [];
+    $usuario_data['nome'] = 'João Gerente';
+    $usuario_data['nivel'] = '4';
+    $usuario_data['username'] = 'jgerente';
+    $usuario_data['password'] = '1234';
 
     $cursoMapper = new CursoMapper($this->db);
     if ($cursoMapper->checkName($aluno_data['curso']) == -1) {
@@ -159,6 +208,11 @@ $app->get('/test', function (Request $request, Response $response) {
     $alunoMapper = new AlunoMapper($this->db);
     $this->logger->addInfo("Saving aluno " . $aluno->getNome());
     $alunoMapper->save($aluno);
+
+    $usuario = new UserEntity($usuario_data);
+    $usuarioMapper = new UserMapper($this->db);
+    $this->logger->addInfo("Saving usuário " . $usuario->getNome());
+    $usuarioMapper->save($usuario);
 
     $response->getBody()->write("Ok, I guess.");
 

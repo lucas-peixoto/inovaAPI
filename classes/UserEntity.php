@@ -1,6 +1,6 @@
 <?php
 
-class AlunoEntity
+class UserEntity
 {
 
     protected $id;
@@ -20,13 +20,16 @@ class AlunoEntity
         // no id if we're creating
         if(isset($data['id'])) {
             $this->id = $data['id'];
-            $this->password = $data['password'];
             $this->token = $data['token'];
         }
 
         $this->nome = $data['nome'];
         $this->nivel = $data['nivel'];
         $this->username = $data['username'];
+
+        if (isset($data['password'])) {
+            $this->password = $data['password'];
+        }
     }
 
     public function getId() {

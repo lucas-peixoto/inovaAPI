@@ -80,22 +80,26 @@ class UserMapper extends Mapper
         return false;
     }
 
+    public function createToken($user) {
+        return md5( $user->getNome() . $user->getUsername() );
+    }
+
     public function save(UserEntity $user) {
-        $sql = "INSERT into users
-            (nome, nivel, username, password) values
-            (:nome, :nivel, :username, :password)";
+        $sql = "INSERT into usuarios
+            (nome, nivel, username, password, token) values
+            (:nome, :nivel, :username, :password, :token)";
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
             "nome" => $user->getNome(),
             "nivel" => $user->getNivel(),
             "username" => $user->getUsername(),
-            "password" => $user->getPassword(),
-            "token" => $this->createToken()
+            "password" => md5($user->getPassword()),
+            "token" => $this->createToken($user)
         ]);
 
         if(!$result) {
-            throw new Exception("Os dados não puderam ser salvos - UserMapper:87");
+            throw new Exception("Os dados não puderam ser salvos - UserMapper:102");
         }
     }
 }
