@@ -71,13 +71,15 @@ class UserMapper extends Mapper
         where token = :token";
 
         $stmt = $this->db->prepare($sql);
-        $result = $stmt->execute(["token" => $token]);
+        $stmt->execute(["token" => $token]);
 
-        if($result) {
+        $row = $stmt->fetch();
+
+        if ($row === false) {
+            return false;
+        } else {
             return true;
         }
-
-        return false;
     }
 
     public function createToken($user) {

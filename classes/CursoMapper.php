@@ -22,7 +22,7 @@ class CursoMapper extends Mapper
     public function getCursos($return_type = 'OBJECT') {
         $sql = "SELECT c.id, c.nome, COUNT(a.id) as total
             FROM cursos c
-            LEFT JOIN alunos a ON a.curso_id = c.id GROUP BY c.id";
+            LEFT JOIN alunos a ON a.curso_id = c.id GROUP BY c.id ORDER BY total DESC";
 
         $stmt = $this->db->query($sql);
         $results = [];
