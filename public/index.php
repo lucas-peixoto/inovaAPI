@@ -62,7 +62,7 @@ $app->get('/tmp', function (Request $request, Response $response) {
     $userMapper = new UserMapper($this->db);
     $user = $userMapper->getUserByCredentials('jgerente', '1234');
 
-    var_dump($user);
+    // var_dump($user);
 
     if ($user) {
         $resp = array( 'success' => 'true', 'token' => $user->getToken() );
@@ -70,7 +70,7 @@ $app->get('/tmp', function (Request $request, Response $response) {
         $resp = array( 'success' => 'false', 'msg' => 'Credenciais inválidas' );
     }
 
-    // return $this->view->render($response, 'json.php', ["data" => $resp]);
+    return $this->view->render($response, 'json.php', ["data" => $resp]);
 });
 
 $app->post('/authenticate', function (Request $request, Response $response) {
@@ -84,10 +84,10 @@ $app->post('/authenticate', function (Request $request, Response $response) {
     $userMapper = new UserMapper($this->db);
     $user = $userMapper->getUserByCredentials($username, $password);
 
-    if ($user) {
-        $resp = array( 'success' => 'true', 'token' => $user->getToken() );
+    if ($user !== false) {
+        $resp = array( 'success' => true, 'token' => $user->getToken() );
     } else {
-        $resp = array( 'success' => 'false', 'msg' => 'Credenciais inválidas' );
+        $resp = array( 'success' => false, 'msg' => 'Credenciais inválidas' );
     }
 
     return $this->view->render($response, 'json.php', ["data" => $resp]);
@@ -128,6 +128,16 @@ $app->group('/get', function () use ($app) {
 
 $app->post('/add', function (Request $request, Response $response) {
     $data = $request->getParsedBody();
+
+    $userMapper = new UserMapper($this->db);
+
+    if (!$userMapper->checkToken($token)) {
+        $this->logger->addInfo("Token $token invalidado");
+        $data = array('success' => false, 'msg' => 'token inválido');
+        return $this->view->render($response, 'json.php', ["data" => $data]);
+    }
+
+    $this->logger->addInfo("Token $token validado");
 
     $aluno_data = [];
     $aluno_data['nome'] = filter_var($data['nome'], FILTER_SANITIZE_STRING);

@@ -52,13 +52,14 @@ class UserMapper extends Mapper
         where username = :username and password = :password";
 
         $stmt = $this->db->prepare($sql);
-        $result = $stmt->execute(["username" => $username, "password" => md5($password)]);
+        $stmt->execute(["username" => $username, "password" => md5($password)]);
+        $data = $stmt->fetch();
 
-        if($result) {
+        if($data) {
             if ($return_type == 'OBJECT') {
-                return new UserEntity($stmt->fetch());
+                return new UserEntity($data);
             } else if ($return_type == 'ARRAY') {
-                return $stmt->fetch();
+                return $data;
             }
         } else {
             return false;
