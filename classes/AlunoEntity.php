@@ -32,7 +32,11 @@ class AlunoEntity
 
         $this->email = $data['email'];
         $this->telefone = $data['telefone'];
-        $this->curso = $data['curso'];
+
+        if(isset($data['curso'])) {
+            $this->curso = $data['curso'];
+        }
+
         $this->turno = $data['turno'];
 
         if(isset($data['endereco_id'])) {

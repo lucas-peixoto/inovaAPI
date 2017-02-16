@@ -24,12 +24,32 @@ class AlunoMapper extends Mapper
         return $results;
     }
 
-    /**
-    * Get one ticket by its ID
-    *
-    * @param int $ticket_id The ID of the ticket
-    * @return TicketEntity  The ticket
-    */
+    public function getAlunosByCurso($curso_id, $return_type = 'OBJECT') {
+        $sql = "SELECT id, nome, email, telefone, turno
+            FROM alunos WHERE curso_id = :curso_id ORDER BY turno";
+
+        $stmt = $this->db->prepare($sql);
+        $res = $stmt->execute(["curso_id" => $curso_id]);
+
+        $results = [];
+
+        if($res) {
+            if ($return_type == 'OBJECT') {
+                while($row = $stmt->fetch()) {
+                    $results[] = new AlunoEntity($stmt->fetch());;
+                }
+            } else if ($return_type == 'ARRAY') {
+                while($row = $stmt->fetch()) {
+                    $results[] = $row;
+                }
+            }
+
+            return $results;
+        }
+
+        return false;
+    }
+
     public function getAlunoById($aluno_id, $return_type = 'OBJECT') {
         $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, a.turno
         from alunos a join cursos c on (c.id = a.curso_id)

@@ -20,9 +20,9 @@ class CursoMapper extends Mapper
     }
 
     public function getCursos($return_type = 'OBJECT') {
-        $sql = "SELECT c.id, c.nome, COUNT(a.id) as total
+        $sql = "SELECT c.id, c.nome, COUNT(a.id) as total_alunos
             FROM cursos c
-            LEFT JOIN alunos a ON a.curso_id = c.id GROUP BY c.id ORDER BY total DESC";
+            LEFT JOIN alunos a ON a.curso_id = c.id GROUP BY c.id ORDER BY total_alunos DESC";
 
         $stmt = $this->db->query($sql);
         $results = [];
@@ -42,7 +42,7 @@ class CursoMapper extends Mapper
 
     public function getCursoById($curso_id, $return_type = 'OBJECT') {
         $sql = "SELECT id, nome,
-        	(SELECT COUNT(*) FROM alunos WHERE curso_id = :curso_id) as alunos,
+        	(SELECT COUNT(*) FROM alunos WHERE curso_id = :curso_id) as total_alunos,
         	(SELECT COUNT(*) FROM alunos WHERE turno = 'manha' AND curso_id = :curso_id) as turno_manha,
         	(SELECT COUNT(*) FROM alunos WHERE turno = 'tarde' AND curso_id = :curso_id) as turno_tarde,
         	(SELECT COUNT(*) FROM alunos WHERE turno = 'noite' AND curso_id = :curso_id) as turno_noite

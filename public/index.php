@@ -45,7 +45,7 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 $app->add(function ($req, $res, $next) {
     $response = $next($req, $res);
     return $response
-            ->withHeader('Access-Control-Allow-Origin', 'http://10.113.19.235:8100')
+            ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
@@ -99,11 +99,12 @@ $app->group('/get', function () use ($app) {
         $userMapper = new UserMapper($this->db);
 
         if ($userMapper->checkToken($token)) {
-            $this->logger->addInfo("Token $token validado");
+            $this->logger->addInfo("Token validado: $token");
             $cursoMapper = new CursoMapper($this->db);
             $cursos = $cursoMapper->getCursos('ARRAY');
             return $this->view->render($response, 'json.php', ["data" => $cursos]);
         } else {
+            $this->logger->addInfo("Token invalidado: $token");
             $data = array('success' => false, 'msg' => 'token inválido');
             return $this->view->render($response, 'json.php', ["data" => $data]);
         }
@@ -119,6 +120,22 @@ $app->group('/get', function () use ($app) {
             $cursoMapper = new CursoMapper($this->db);
             $curso = $cursoMapper->getCursoById($curso_id, 'ARRAY');
             return $this->view->render($response, 'json.php', ["data" => $curso]);
+        } else {
+            $data = array('success' => false, 'msg' => 'token inválido');
+            return $this->view->render($response, 'json.php', ["data" => $data]);
+        }
+    });
+    $app->get('/{id}/alunos/{token}', function ($request, $response, $args) {
+        $curso_id = (int) $args['id'];
+        $token = $request->getAttribute('token');
+        $userMapper = new UserMapper($this->db);
+
+        if ($userMapper->checkToken($token)) {
+            $this->logger->addInfo("Token $token validado");
+            $this->logger->addInfo("Geting alunos from $curso_id for $token");
+            $alunoMapper = new AlunoMapper($this->db);
+            $alunos = $alunoMapper->getAlunosByCurso($curso_id, 'ARRAY');
+            return $this->view->render($response, 'json.php', ["data" => $alunos]);
         } else {
             $data = array('success' => false, 'msg' => 'token inválido');
             return $this->view->render($response, 'json.php', ["data" => $data]);
@@ -148,7 +165,7 @@ $app->post('/add', function (Request $request, Response $response) {
     $aluno_data['turno'] = filter_var($data['turno'], FILTER_SANITIZE_STRING);
     $endereco_data = [];
     $endereco_data['rua'] = filter_var($data['rua'], FILTER_SANITIZE_STRING);
-    $endereco_data['numero'] = filter_var($data['numero'], FILTER_SANITIZE_STRING);
+    $endereco_data['numero'] = $data['numero'];
     $endereco_data['bairro'] = filter_var($data['bairro'], FILTER_SANITIZE_STRING);
     $endereco_data['cidade'] = filter_var($data['cidade'], FILTER_SANITIZE_STRING);
     $endereco_data['estado'] = filter_var($data['estado'], FILTER_SANITIZE_STRING);
