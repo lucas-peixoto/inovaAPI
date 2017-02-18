@@ -93,6 +93,51 @@ $app->post('/authenticate', function (Request $request, Response $response) {
     return $this->view->render($response, 'json.php', ["data" => $resp]);
 });
 
+$app->get('/send', function (Request $request, Response $response) {
+    $data = $request->getParsedBody();
+
+    $post_to = filter_var($data['to'], FILTER_SANITIZE_STRING);
+    $subject = filter_var($data['subject'], FILTER_SANITIZE_STRING);
+    $message = filter_var($data['message'], FILTER_SANITIZE_STRING);
+
+    // /{to}/{subject}/{message}
+    // $post_to = $request->getAttribute('to');
+    // $subject = $request->getAttribute('subject');
+    // $message = $request->getAttribute('message');
+
+    $to = '';
+    $message = wordwrap($message);
+    $alunoMapper = new AlunoMapper($this->db);
+
+    if ($post_to == 'all') {
+        $alunos = $alunoMapper->getAlunos();
+
+        foreach ($alunos as $aluno) {
+            $to .= $aluno->getNome() . ' <' . $aluno->getEmail() . '>, ';
+        }
+    } else {
+        $cursoMapper = new CursoMapper($this->db);
+        $curso = $cursoMapper->getCursoByName($post_to);
+        $alunos = $alunoMapper->getAlunosByCurso($curso->getId());
+
+        foreach ($alunos as $aluno) {
+            $to .= $aluno->getNome() . ' <' . $aluno->getEmail() . '>, ';
+        }
+    }
+
+    $to = substr($to, 0, -2);
+
+    if (mail($to, $subject, $message)) {
+        $this->logger->addInfo("Mail sent to: $to");
+        $data = array('success' => true, 'msg' => 'Emails enviados');
+        return $this->view->render($response, 'json.php', ["data" => $data]);
+    } else {
+        $this->logger->addInfo("Mail not sent to: $to");
+        $data = array('success' => false, 'msg' => 'Emails não enviados');
+        return $this->view->render($response, 'json.php', ["data" => $data]);
+    }
+});
+
 $app->group('/get', function () use ($app) {
     $app->get('/all/{token}', function ($request, $response) {
         $token = $request->getAttribute('token');
@@ -145,6 +190,7 @@ $app->group('/get', function () use ($app) {
 
 $app->post('/add', function (Request $request, Response $response) {
     $data = $request->getParsedBody();
+    $token = $data['token'];
 
     $userMapper = new UserMapper($this->db);
 
@@ -165,7 +211,7 @@ $app->post('/add', function (Request $request, Response $response) {
     $aluno_data['turno'] = filter_var($data['turno'], FILTER_SANITIZE_STRING);
     $endereco_data = [];
     $endereco_data['rua'] = filter_var($data['rua'], FILTER_SANITIZE_STRING);
-    $endereco_data['numero'] = $data['numero'];
+    $endereco_data['numero'] = filter_var($data['numero'], FILTER_SANITIZE_STRING);
     $endereco_data['bairro'] = filter_var($data['bairro'], FILTER_SANITIZE_STRING);
     $endereco_data['cidade'] = filter_var($data['cidade'], FILTER_SANITIZE_STRING);
     $endereco_data['estado'] = filter_var($data['estado'], FILTER_SANITIZE_STRING);
