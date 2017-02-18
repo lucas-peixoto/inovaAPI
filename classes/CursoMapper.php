@@ -60,6 +60,22 @@ class CursoMapper extends Mapper
         }
     }
 
+    public function getCursoByName($curso_nome, $return_type = 'OBJECT') {
+        $sql = "SELECT id, nome
+            FROM cursos WHERE nome = :curso_nome";
+
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute(["curso_nome" => $curso_nome]);
+
+        if($result) {
+            if ($return_type == 'OBJECT') {
+                return new CursoEntity($stmt->fetch());
+            } else if ($return_type == 'ARRAY') {
+                return $stmt->fetch();
+            }
+        }
+    }
+
     public function save(CursoEntity $curso) {
         $sql = "INSERT into cursos
         (nome) values (:nome)";

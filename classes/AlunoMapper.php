@@ -36,7 +36,7 @@ class AlunoMapper extends Mapper
         if($res) {
             if ($return_type == 'OBJECT') {
                 while($row = $stmt->fetch()) {
-                    $results[] = new AlunoEntity($stmt->fetch());;
+                    $results[] = new AlunoEntity($row);
                 }
             } else if ($return_type == 'ARRAY') {
                 while($row = $stmt->fetch()) {
