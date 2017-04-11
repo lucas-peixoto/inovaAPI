@@ -24,6 +24,16 @@
   margin-bottom: 0 !important;
 }
 
+.live-search-list li {
+    padding: 14px !important;
+    margin-left: 14px !important;
+    vertical-align: middle !important;
+}
+
+.live-search-list li:hover {
+    cursor: pointer;
+}
+
 .main-footer{
   background: #000E24;
   padding: 20px 0;

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
-        <title>Semana de Integração 2017 - FJN</title>
+        <title>XXX XXX XXX</title>
 
         <link rel="stylesheet" href="../assets/css/semantic.min.css">
         <link rel="stylesheet" href="../assets/css/app.css">
