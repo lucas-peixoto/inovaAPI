@@ -20,7 +20,7 @@ class CursoMapper extends Mapper
     }
 
     public function getCursos($return_type = 'OBJECT') {
-        $sql = "SELECT c.id, c.nome, COUNT(a.id) as total_alunos
+        $sql = "SELECT c.id, c.nome, c.descricao, COUNT(a.id) as total_alunos
             FROM cursos c
             LEFT JOIN alunos a ON a.curso_id = c.id GROUP BY c.id ORDER BY total_alunos DESC";
 
@@ -41,12 +41,9 @@ class CursoMapper extends Mapper
     }
 
     public function getCursoById($curso_id, $return_type = 'OBJECT') {
-        $sql = "SELECT id, nome,
-        	(SELECT COUNT(*) FROM alunos WHERE curso_id = :curso_id) as total_alunos,
-        	(SELECT COUNT(*) FROM alunos WHERE turno = 'manha' AND curso_id = :curso_id) as turno_manha,
-        	(SELECT COUNT(*) FROM alunos WHERE turno = 'tarde' AND curso_id = :curso_id) as turno_tarde,
-        	(SELECT COUNT(*) FROM alunos WHERE turno = 'noite' AND curso_id = :curso_id) as turno_noite
-            FROM cursos WHERE id = :curso_id";
+        $sql = "SELECT id, nome, descricao,
+        	(SELECT COUNT(*) FROM alunos WHERE curso_id = :curso_id) as total_alunos
+          FROM cursos WHERE id = :curso_id";
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute(["curso_id" => $curso_id]);
@@ -61,7 +58,7 @@ class CursoMapper extends Mapper
     }
 
     public function getCursoByName($curso_nome, $return_type = 'OBJECT') {
-        $sql = "SELECT id, nome
+        $sql = "SELECT id, nome, descricao
             FROM cursos WHERE nome = :curso_nome";
 
         $stmt = $this->db->prepare($sql);
@@ -78,10 +75,10 @@ class CursoMapper extends Mapper
 
     public function save(CursoEntity $curso) {
         $sql = "INSERT into cursos
-        (nome) values (:nome)";
+        (nome, descricao) values (:nome, :descricao)";
 
         $stmt = $this->db->prepare($sql);
-        $result = $stmt->execute(["nome" => $curso->getNome()]);
+        $result = $stmt->execute(["nome" => $curso->getNome(), "descricao" => $curso->getDescricao()]);
 
         if(!$result) {
             throw new Exception("Os dados não puderam ser salvos - CursoMapper:52");

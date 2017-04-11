@@ -4,7 +4,7 @@ class AlunoMapper extends Mapper
 {
 
     public function getAlunos($return_type = 'OBJECT') {
-        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, a.turno
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, c.descricao
         from alunos a
         join cursos c on (c.id = a.curso_id)";
 
@@ -26,7 +26,7 @@ class AlunoMapper extends Mapper
 
     public function getAlunosByCurso($curso_id, $return_type = 'OBJECT') {
         $sql = "SELECT id, nome, email, telefone, turno
-            FROM alunos WHERE curso_id = :curso_id ORDER BY turno";
+            FROM alunos WHERE curso_id = :curso_id";
 
         $stmt = $this->db->prepare($sql);
         $res = $stmt->execute(["curso_id" => $curso_id]);
@@ -51,7 +51,7 @@ class AlunoMapper extends Mapper
     }
 
     public function getAlunoById($aluno_id, $return_type = 'OBJECT') {
-        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, a.turno
+        $sql = "SELECT a.id, a.nome, a.email, a.telefone, c.nome as curso, c.descricao
         from alunos a join cursos c on (c.id = a.curso_id)
         where a.id = :aluno_id";
 
@@ -69,9 +69,9 @@ class AlunoMapper extends Mapper
 
     public function save(AlunoEntity $aluno) {
         $sql = "INSERT into alunos
-            (nome, cpf, email, telefone, curso_id, turno, endereco_id) values
+            (nome, cpf, email, telefone, curso_id) values
             (:nome, :cpf, :email, :telefone,
-            (select id from cursos where nome = :curso), :turno, :endereco)";
+            (select id from cursos where nome = :curso))";
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
@@ -79,9 +79,7 @@ class AlunoMapper extends Mapper
             "cpf" => $aluno->getCpf(),
             "email" => $aluno->getEmail(),
             "telefone" => $aluno->getTelefone(),
-            "curso" => $aluno->getCurso(),
-            "turno" => $aluno->getTurno(),
-            "endereco" => $aluno->getEndereco()
+            "curso" => $aluno->getCurso()
         ]);
 
         if(!$result) {

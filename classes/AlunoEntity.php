@@ -9,8 +9,6 @@ class AlunoEntity
     protected $email;
     protected $telefone;
     protected $curso;
-    protected $turno;
-    protected $endereco;
 
     /**
      * Accept an array of data matching properties of this class
@@ -37,11 +35,6 @@ class AlunoEntity
             $this->curso = $data['curso'];
         }
 
-        $this->turno = $data['turno'];
-
-        if(isset($data['endereco_id'])) {
-            $this->endereco = $data['endereco_id'];
-        }
     }
 
     public function getId() {
@@ -66,14 +59,6 @@ class AlunoEntity
 
     public function getCurso() {
         return $this->curso;
-    }
-
-    public function getTurno() {
-        return $this->turno;
-    }
-
-    public function getEndereco() {
-        return $this->endereco;
     }
 
 }
