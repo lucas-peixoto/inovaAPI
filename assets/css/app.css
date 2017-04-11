@@ -1,0 +1,47 @@
+.main-header {
+  padding: 25px 0;
+  background: #000E24; }
+
+.main-footer .ui.header,
+.main-header .ui.header,
+.main-header .ui.header .sub.header{
+  color: #fff;
+}
+
+.call-banner{
+   background:#eee;
+}
+.article-submit,
+.user-dashboar,
+.panel-general,
+.login-section,
+.signup-form,
+.announcements{
+  padding: 50px 0;
+}
+
+.custom-header{
+  margin-bottom: 0 !important;
+}
+
+.main-footer{
+  background: #000E24;
+  padding: 20px 0;
+  color: #fff;
+}
+
+.ui.segment:first-child {
+    margin-top: 1rem;
+}
+
+.ui.selection.list .item{
+    cursor: default !important;
+}
+
+.works .ui.divider{
+    margin: 30px 0;
+}
+.works .ui.divider + .ui.header{
+    margin-top: 0 !important;
+    line-height: 100% !important;
+}
