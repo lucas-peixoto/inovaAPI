@@ -1,8 +1,10 @@
 <?php require '../templates/header.php'; ?>
 <?php
-// $data = file_get_contents('<url of that website>');
-// $data = json_decode($data, true);
+$token = 'web-access';
 
+$data = file_get_contents('http://localhost/inovaAPI/public/api.php/get/all/' . $token);
+$data = json_decode($data, true);
+//var_dump($data);die;
 ?>
 
 <section id="signup-form" class="signup-form">
@@ -11,21 +13,21 @@
         <div class="ui header">
             <h1>Faça já sua escolha!</h1>
         </div>
-        <form action="inserir.php" method="post" data-type="user" class="ui form">
+        <form id="form" action="api.php/add" method="post" data-type="user" class="ui form">
             <h4 class="ui header">
                 Produto
                 <span class="sub header">
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit.
                 </span>
             </h4>
-            <input type="text" class="live-search-box" placeholder="search here" required=""/>
-            <ul class="ui grid horizontal list live-search-list" style="width: 100%">
-                <li class="item four wide column" value="Lorem">Lorem</li>
-                <li class="item four wide column" value="ipsum">ipsum</li>
-                <li class="item four wide column" value="dolor">dolor</li>
-                <li class="item four wide column" value="sit">sit</li>
-                <li class="item four wide column" value="amet">amet</li>
-            </ul>
+            <input id="curso" name="curso" type="text" class="live-search-box" placeholder="Nome do Produto" required=""/>
+            <div class="ui segment grid" style="padding-left: 14px;">
+                <ul class="ui horizontal bulleted list live-search-list" style="width: 100%">
+                    <?php foreach ($data as $p) { ?>
+                    <li class="item four wide column"><?= $p['nome']; ?></li>
+                    <?php } ?>
+                </ul>
+            </div>
 
             <h4 class="ui header">
                 Dados pessoais
@@ -36,7 +38,7 @@
             <div class="two fields">
                 <div class="field">
                     <label for="name">Nome completo:</label>
-                    <input type="text" placeholder="Ex: José Carlos Saraiva Neto" name="nome" id="name" required="">
+                    <input type="text" placeholder="Ex: José Carlos Saraiva Neto" name="nome" id="nome" required="">
                 </div>
                 <div class="field">
                     <label for="cpf">CPF:</label>
@@ -53,9 +55,10 @@
                     <input type="tel" placeholder="Ex: (88) 91231-3123" name="telefone" id="telefone">
                 </div>
             </div>
+			<input id="token" type="hidden" value="<?= $token; ?>" name="token">
             <div class="one field">
                 <div class="field">
-                    <button type="submit" class="ui right floated green button" name="action" value="cad_user">Enviar</button>
+                    <button type="submit" id="go" class="ui right floated green button" name="action">Enviar</button>
                 </div>
             </div>
         </form>

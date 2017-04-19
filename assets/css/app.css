@@ -26,7 +26,7 @@
 
 .live-search-list li {
     padding: 14px !important;
-    margin-left: 14px !important;
+    margin-left: 0 !important;
     vertical-align: middle !important;
 }
 
